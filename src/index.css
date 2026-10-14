@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   DIZAYN TIZIMI (bitta uslub: Klassik)
+   Rejim: <html class="dark"> (night) yoki klassi yo'q (light).
+
+   ILHOM MANBALARI:
+   - Uber Base: deyarli qora-oq palitra, bitta ko'k aksent (#276EF1), asosiy tugma
+     "invers" (yorug'da qora, qorong'uda oq), katta va qalin sarlavhalar, 4px panjara.
+   - Finesse UI Playbook: "shadow border" (chegara o'rniga soya halqasi), qatlamli soya,
+     qorong'u yuzada ichki yorug'lik, konsentrik burchaklar, nozik shovqin (noise).
+   - Motion design: bir xil temp va egri chiziqlar (--ease), mikro-animatsiyalar,
+     skroll triggerlar, tugma "ripple", holat animatsiyalari. Faqat transform/opacity.
+   ===================================================================== */
+
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #5e5e5e;
+  --card: #f6f6f6;
+  --border: rgba(0, 0, 0, 0.1);
+  --accent: #276ef1;          /* Uber Base "accent400" ko'ki */
+  --accent2: var(--accent);   /* eski sinflar (bg-accent2) uchun ismdosh */
+  --accent3: #c2185b;
+  --on-accent: #ffffff;
+
+  --btn-bg: var(--fg);        /* Base: asosiy tugma qora/oq inversiya */
+  --btn-fg: var(--bg);
+
+  --radius: 1rem;             /* kartochka */
+  --radius-btn: 0.75rem;      /* input va ikkilamchi elementlar */
+  --radius-pill: 999px;       /* tugma va chip */
+  --font-head: 'Inter Tight', Inter, system-ui, sans-serif;
+
+  /* Harakat: silliq "premium" egri chiziq va tezliklar */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.18s;
+  --dur: 0.4s;
+  --dur-slow: 0.8s;
+
+  /* Finesse: qatlamli tabiiy soya (manfiy spread — soya chetga toshmaydi) */
+  --elev: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 16px -8px rgba(0, 0, 0, 0.08), 0 24px 40px -24px rgba(0, 0, 0, 0.14);
+  --inner-highlight: inset 0 0 0 transparent;
+  --noise: 0.035;
+}
+.dark {
+  --bg: #000000;
+  --fg: #ffffff;
+  --muted: #a6a6a6;
+  --card: #111111;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #5b91f4;
+  --accent3: #f472b6;
+  --on-accent: #000000;
+
+  /* Finesse: qorong'u yuzada yuqori chetdagi nozik yorug'lik + chuqur soya */
+  --elev: 0 8px 24px -12px rgba(0, 0, 0, 0.9);
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  position: relative; /* framer-motion useScroll uchun kerak */
+  /* Finesse: nozik shovqin — alohida qatlam emas, shunchaki fon rasmi (hech qanday qo'shimcha hisob-kitob yo'q) */
+  background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  color: var(--fg);
+  font-family: Inter, system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* Sarlavhalar muvozanatli (yolg'iz so'z qolmaydi), paragraflar chiroyli o'raladi */
+h1, h2, h3 { font-family: var(--font-head); font-weight: 800; letter-spacing: -0.035em; text-wrap: balance; }
+p { text-wrap: pretty; }
+::selection { background: var(--accent); color: var(--on-accent); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+@layer components {
+  /* Kartochka: "shadow border" + qatlamli soya + ichki yorug'lik */
+  .glass {
+    background: var(--card);
+    box-shadow: 0 0 0 1px var(--border), var(--inner-highlight), var(--elev);
+    border-radius: var(--radius);
+    transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease), background-color 0.3s;
+  }
+  /* Ustiga kelinganda kartochka biroz ko'tariladi, halqa aksent rangga o'tadi */
+  .glass.hoverable:hover,
+  .glass.is-accent {
+    box-shadow: 0 0 0 1px var(--accent), var(--inner-highlight), var(--elev);
+  }
+  .glass.lift:hover { transform: translateY(-4px); }
+
+  /* Sticky menyu: shaffof fon + blur */
+  .nav-blur {
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  .text-gradient { color: var(--accent); }
+
+  .btn-neon, .btn-ghost {
+    position: relative; overflow: hidden; /* ripple chegarasi */
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.8rem 1.6rem; border-radius: var(--radius-pill); font-weight: 600;
+    transition: transform var(--dur-fast) var(--ease), filter var(--dur-fast), box-shadow var(--dur) var(--ease);
+  }
+  .btn-neon { background: var(--btn-bg); color: var(--btn-fg); }
+  .btn-neon:hover { filter: brightness(1.12); }
+  .btn-ghost { background: var(--card); box-shadow: 0 0 0 1px var(--border), var(--inner-highlight); }
+  .btn-ghost:hover { box-shadow: 0 0 0 1px var(--accent), var(--inner-highlight); }
+  /* Bosilganda sezilar-sezilmas kichrayish — "jismoniy" tuyg'u */
+  .btn-neon:active, .btn-ghost:active, .chip:active { transform: scale(0.96); }
+  .btn-ghost:disabled, .btn-neon:disabled { opacity: 0.5; pointer-events: none; }
+
+  /* Tugma "ripple": bosilgan nuqtadan to'lqin yoyiladi (main.jsx da yaratiladi) */
+  .ripple {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    background: currentColor; opacity: 0.22; transform: scale(0);
+    animation: ripple 0.65s var(--ease) forwards;
+  }
+  @keyframes ripple { to { transform: scale(1); opacity: 0; } }
+
+  .input {
+    width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-btn);
+    background: var(--card); color: var(--fg);
+    box-shadow: 0 0 0 1px var(--border) inset;
+    border: 0; outline: none; transition: box-shadow var(--dur-fast) var(--ease);
+  }
+  .input:focus { box-shadow: 0 0 0 2px var(--accent) inset; }
+  .label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.3rem; display: block; }
+
+  .chip {
+    position: relative;
+    padding: 0.4rem 1rem; border-radius: var(--radius-pill);
+    background: var(--card); box-shadow: 0 0 0 1px var(--border);
+    font-size: 0.875rem; cursor: pointer;
+    transition: box-shadow var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), color var(--dur-fast);
+  }
+  .chip:hover { box-shadow: 0 0 0 1px var(--accent); }
+  .chip-active { background: var(--btn-bg); color: var(--btn-fg); box-shadow: none; }
+
+  .eyebrow { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+
+  /* Havola tagidagi chiziq chapdan o'ngga "chiziladi" */
+  .link-underline { position: relative; }
+  .link-underline::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px;
+    background: var(--accent); transform: scaleX(0); transform-origin: right;
+    transition: transform var(--dur) var(--ease);
+  }
+  .link-underline:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  /* Kod oynasidagi miltillovchi kursor */
+  .caret {
+    display: inline-block; width: 0.55em; height: 1.1em; margin-left: 2px; vertical-align: text-bottom;
+    background: var(--accent); animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+}
+
+/* Finesse: rasm chetiga ichkariga 1px yarim shaffof kontur */
+img { outline: 1px solid rgba(128, 128, 128, 0.18); outline-offset: -1px; }
+
+/* Light/Night o'tishi (View Transitions): eski kadr ustiga yangisi aylana bo'lib yoyiladi */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+.table-wrap { overflow-x: auto; }
+
+/* Foydalanuvchi tizimda "animatsiyani kamaytirish" ni yoqqan bo'lsa — hamma harakat o'chadi */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Klaviatura bilan yurganda fokus ko'rinib tursin */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
